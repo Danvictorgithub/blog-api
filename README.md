@@ -1,2 +1,2 @@
-# Blog API
-Simple API using Express,JWT,Passport, and MongoDB
+# Blog Application
+Simple Full Stack Project with MERN Stack
