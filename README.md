@@ -1,2 +1,2 @@
-# Blog Application
-Simple Full Stack Project with MERN Stack
+# Blog API
+Made with Express, JsonWebToken, PassportJS, and MongoDB
