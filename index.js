@@ -7,6 +7,7 @@ const logger = require('morgan');
 // MongoDB Setup
 const mongoDB = process.env.MONGODB_URI;
 mongoose.connect(mongoDB, {useNewUrlParser:true, useUnifiedTopology:true});
+mongoose.set('strictQuery', true);
 const db = mongoose.connection;
 db.on('error',console.error.bind(console, 'MongoDB Connection Error'));
 
