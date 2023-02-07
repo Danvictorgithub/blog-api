@@ -15,6 +15,9 @@ db.on('error',console.error.bind(console, 'MongoDB Connection Error'));
 const port = 3000;
 const app = express();
 
+// PassportJS Setup
+require('./routes/passport');
+
 // Express Middlewares
 app.use(logger('dev'));
 app.use(express.json());
