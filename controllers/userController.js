@@ -1,11 +1,40 @@
 const User = require('../models/user');
 const {check, validationResult} = require('express-validator');
 const bcrypt = require('bcryptjs');
-exports.login_GET = (req,res) => {
+const passport = require('passport');
+const jwt = require('jsonwebtoken');
+
+// User Authentication
+exports.login_GET = (req,res,next) => {
 	res.json({message:"Not Yet Implemented"});
 };
-exports.login_POST = (req,res) => {
-	res.json({message:"Not Yet Implemented"});
+
+exports.login_POST = (req,res,next) => {
+	// passport.authenticate('local',{session:false},(err,user,info) =>{authentication})(req,res) //It is an object constructor with double return values
+	// authentication -> - error or user doesn't exist returns statusCode 400 (Bad Request)
+	//					 - success then login user with JWT token used for user authentication to protected routes
+	passport.authenticate('local',{session:false},(err,user,info) => {
+		// session is set to false since API is used for authentication
+		if (err || !user) {
+			return res.status(400).json({
+				message: "Something is not right",
+				user: user
+			});
+		}
+		req.login(user, {session: false}, (err) => {
+           if (err) {
+               res.send(err);
+           }
+			jwt.sign({user}, process.env.SECRET_KEY,(err,token)=>{
+				if (err) {
+					return res.status(400).json({
+						message: "Something is not right",
+					});
+				}
+				return res.json({user, token});
+			});
+		   });
+	})(req,res);
 };
 exports.signup_GET = (req,res) => {
 	res.json({message:"Not Yet Implemented"});

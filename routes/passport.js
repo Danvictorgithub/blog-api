@@ -4,6 +4,8 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 
 // PassportJS Setup
+
+// Passport Strategy for Validating User Login Input
 passport.use(new LocalStrategy((username,password,cb)=> {
 	User.findOne({username:username}).exec((err,user)=>{
 		if (err) {
