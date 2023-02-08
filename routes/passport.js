@@ -1,5 +1,9 @@
+require("dotenv").config();
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
+const passportJWT = require('passport-jwt');
+const JWTStrategy = passportJWT.Strategy;
+const ExtractJWT = passportJWT.ExtractJwt;
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 
@@ -25,5 +29,21 @@ passport.use(new LocalStrategy((username,password,cb)=> {
 				return cb(null,false,{message:"Incorrect Password"});
 			}
  		});
+	});
+}));
+
+//JWTStrategy Option Configuration
+const opts = {
+	jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+    secretOrKey : process.env.SECRET_KEY
+};
+
+passport.use(new JWTStrategy(opts,(jwt_payload, cb) => {
+	// Passes entire user to query
+	return User.findOne(jwt_payload.user).exec((err,user)=> {
+		if (err) {
+			return cb(err);
+		}
+		return cb(null,user);
 	});
 }));
