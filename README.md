@@ -1,2 +1,2 @@
 # Blog API
-Made with Express, JsonWebToken, PassportJS, and MongoDB
+RESTful API made with Express, JsonWebToken, PassportJS, and MongoDB 
