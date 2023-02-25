@@ -10,7 +10,7 @@ exports.login_GET = (req,res,next) => {
 };
 
 exports.login_POST = (req,res,next) => {
-
+	console.log(req.body);
 	// passport.authenticate('local',{session:false},(err,user,info) =>{authentication})(req,res) //It is an object constructor with double return values
 	// authentication -> - error or user doesn't exist returns statusCode 400 (Bad Request)
 	//					 - success then login user with JWT token used for user authentication to protected routes
