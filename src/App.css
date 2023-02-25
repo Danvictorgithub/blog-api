@@ -115,7 +115,10 @@ input:focus-within {
     height: 100px;
     margin-bottom: 36px;
 }
-
+.invalidPassword {
+    padding:24px 0;
+    font-size:1.2mrem;
+}
 @media (max-width: 600px) {
     .header {
         font-size: 0.6rem;
