@@ -21,5 +21,7 @@ router.get("/posts/add", postController.addPost);
 router.post("/protectedRoute",passport.authenticate('jwt',{session:false}),(req,res) => {
 	res.status(200).json({message:"Authorization Successful"});
 });
-
+router.post("/adminDashboard",passport.authenticate('jwt',{session:false}),(req,res) => {
+	res.status(200).json({message:"Authorization Successful"});
+});
 module.exports = router;
