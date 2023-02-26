@@ -16,7 +16,7 @@ function LoginForm({token,urlApi,verifyUserToken}) {
 		e.preventDefault();
 		let statusCode;
 		let formData = {'username':data['username'],'password':data['password']};
-		console.log(formData);
+		// console.log(urlApi);
 			fetch(urlApi+"login",{
 			method:"POST",
 			headers: {'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'},

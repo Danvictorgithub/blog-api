@@ -4,7 +4,8 @@ function AdminDashboard() {
 
 	return (
 		<div className="AdminDashboard container wrapper">
-			Admin Dashboard
+			<div className="sideBar"></div>
+			<div className="adminContent"></div>
 		</div>
 	)
 }

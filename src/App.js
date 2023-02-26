@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import { BrowserRouter, Routes, Route} from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate} from 'react-router-dom';
 import './App.css';
 import Header from "./components/Header";
 import Footer from "./components/Footer";
@@ -22,7 +22,7 @@ function App() {
     }
   ,[]);
   function verifyUserToken(token) {
-    console.log(token);
+    // console.log(token);
     fetch(urlApi+'adminDashboard',
       {
         method:"POST",
@@ -33,20 +33,25 @@ function App() {
     )
     .then((response)=> {
       if (response.status === 200) {
-        console.log("success");
+        // console.log("success");
         setIsLoggedIn(true);
       } 
       else {
-        console.log("failure");
+        // console.log("failure");
         setIsLoggedIn(false);
       }
     })
   }
   return (
     <div className="App">
+      <BrowserRouter>
       <Header/>
-      {isLoggedIn ? <AdminDashboard/>: <LoginForm urlApi={urlApi} verifyUserToken={verifyUserToken} token={token}/>}
-      <Footer/>
+        <Routes>
+          <Route className="container" path="/" element={isLoggedIn ? <Navigate replace to="/dashboard"/>: <LoginForm token={token} urlApi={urlApi} verifyUserToken={verifyUserToken}/>}></Route>
+          <Route className="container" path="/dashboard" element={!isLoggedIn ? <Navigate replace to="/"/>: <AdminDashboard/>}></Route>
+        </Routes>
+        <Footer/>
+      </BrowserRouter>
     </div>
   );
 }

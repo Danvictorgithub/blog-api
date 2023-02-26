@@ -51,6 +51,7 @@ body {
     align-items:center;
     border-top:1px solid lightgray;
     gap:12px;
+    margin-top:auto;
 }
 .container {
     flex: 1 1 0;
@@ -123,6 +124,8 @@ input:focus-within {
     padding:24px 0;
     font-size:1.2mrem;
 }
+
+.adminDashboard
 @media (max-width: 600px) {
     .header {
         font-size: 0.6rem;
