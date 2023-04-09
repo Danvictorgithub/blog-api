@@ -6,18 +6,15 @@ const apiRoutes = require('./routes/apiRoutes');
 const cors = require('cors');
 
 // MongoDB Setup
-const mongoDB = process.env.MONGODB_URI;
-mongoose.set('strictQuery', false);
-mongoose.connect(mongoDB, {useNewUrlParser:true, useUnifiedTopology:true});
-const db = mongoose.connection;
-db.on('error',console.error.bind(console, 'MongoDB Connection Error'));
-
+require('./configs/mongodb-config');
+// Firebase Setup
+require('./configs/firebase-config');
 // Express Setup
 const port = 5454;
 const app = express();
 
 // PassportJS Setup
-require('./routes/passport');
+require('./configs/passport');
 
 // Express Middlewares
 app.use(cors());
