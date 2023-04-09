@@ -55,6 +55,7 @@ body {
 }
 .container {
     flex: 1 1 0;
+    width:100%;
 }
 .wrapper {
     max-width: 1280px;
@@ -124,8 +125,33 @@ input:focus-within {
     padding:24px 0;
     font-size:1.2mrem;
 }
-
-.adminDashboard
+.AdminDashboard {
+/*    background-color: red;*/
+}
+.adminNav {
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.adminNav > * {
+    font-size: 1.2rem;
+    border:1.5px solid lightgray;
+    border-radius: 12px;
+    width: 100%;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none;
+    color: #242424;
+    height:50px;
+}
+.adminNav > *:hover {
+    background-color:darkgray;
+}
+.adminContent {
+    padding:12px;
+}
+.AdminDashboard
 @media (max-width: 600px) {
     .header {
         font-size: 0.6rem;

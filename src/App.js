@@ -5,6 +5,8 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import LoginForm from "./components/LoginForm";
 import AdminDashboard from "./components/views/AdminDashboard";
+  import Overview from './components/views/AdminDashboard-Overview.jsx';
+  import CreatePost from './components/views/AdminDashboard-Create_Post.jsx';
 function App() {
   const urlApi = "http://localhost:5454/api/";
   const [isLoggedIn,setIsLoggedIn] = useState(false);
@@ -49,7 +51,11 @@ function App() {
       <Header/>
         <Routes>
           <Route className="container" path="/" element={isLoggedIn ? <Navigate replace to="/dashboard"/>: <LoginForm token={token} urlApi={urlApi} verifyUserToken={verifyUserToken}/>}></Route>
-          <Route className="container" path="/dashboard" element={!isLoggedIn ? <Navigate replace to="/"/>: <AdminDashboard/>}></Route>
+          <Route className="container" path="/dashboard" element={isLoggedIn ? <Navigate replace to="/"/>: <AdminDashboard/>}>
+            <Route index element={<Overview />}></Route>
+            <Route path="overview" element={<Overview />}></Route>
+            <Route path="createPost" element={<CreatePost />}></Route>
+          </Route>
         </Routes>
         <Footer/>
       </BrowserRouter>
