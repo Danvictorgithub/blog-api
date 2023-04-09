@@ -120,7 +120,7 @@ input:focus-within {
     height: 100px;
     margin-bottom: 36px;
 }
-.invalidPassword {
+.formError {
     padding:24px 0;
     font-size:1.2mrem;
 }

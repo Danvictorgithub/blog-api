@@ -1,17 +1,24 @@
 import React, {useState, useEffect} from "react";
 function LoginForm({token,urlApi,verifyUserToken}) {
+	// login-form initialization
 	const [data,setData] = useState({
 		username:"",
 		password:""
 	});
+	// Error indicators
 	const [isInvalidPassword,setIsInvalidPassword] = useState(false);
-	useEffect(()=>{
-	},[isInvalidPassword]);
+	const [isNetworkError,setIsNetworkError] = useState(false);
+
+	// useEffect(()=>{
+	// },[isInvalidPassword]);
+
+	// Collects login form-input
 	function updateData(e) {
 		const newData = {...data};
 		newData[e.target.name] = e.target.value;
 		setData(newData);
 	}
+	// saves login form-input -> form-data urlencoded to authentication API
 	async function postData(e) {
 		e.preventDefault();
 		let statusCode;
@@ -27,19 +34,22 @@ function LoginForm({token,urlApi,verifyUserToken}) {
 			return response.json()})
 		.then(response=> {
 			// console.log(response);
+			// Catch Invalid password
 			if (statusCode === 400) {
 				setIsInvalidPassword(true);
 			}
 			else {
+				// saves JWT token to LocalStorage
 				localStorage.setItem('token',`Bearer ${response["token"]}`);
 				setIsInvalidPassword(false);
 				Promise.all([
 					token.current = `Bearer ${response["token"]}`,
 					verifyUserToken(token.current)
 				]);
-				
-				// verifyUserToken(token);
 			}
+		})
+		.catch(() => {
+			setIsNetworkError(true);
 		});		
 	}
 	return (
@@ -55,7 +65,8 @@ function LoginForm({token,urlApi,verifyUserToken}) {
 				</label>
 				<button onClick={postData} type="submit">Sign in</button>
 			</form>
-			{isInvalidPassword ? <p className="invalidPassword">Invalid Username or Password</p> : <p className="invalidPassword"></p>}
+			{isInvalidPassword ? <p className="formError">Invalid Username or Password</p> : <p className="formError"></p>}
+			{isNetworkError ? <p className="formError">Couldn't get request from server</p>:<p className="formError"></p>}
 			
 		</div>
 	);

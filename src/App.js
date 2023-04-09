@@ -9,6 +9,7 @@ function App() {
   const urlApi = "http://localhost:5454/api/";
   const [isLoggedIn,setIsLoggedIn] = useState(false);
   const token = useRef(``);
+  // initialization life cycle -> checks if there is already a JWT token then verifies if valid else clears LocalStorage
   useEffect(() => 
     {   
       // console.log(localStorage.getItem('token'));
