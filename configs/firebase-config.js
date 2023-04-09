@@ -5,8 +5,8 @@ const firebaseConfig = {
   projectId: process.env.projectId,
   storageBucket: process.env.storageBucket,
   messagingSenderId: process.env.messagingSenderId,
-  appId: process.env.appId,
-  measurementId: process.env.measurementId
+  appId: process.env.appId
+  // measurementId: process.env.measurementId
 };
 const {initializeApp} = require("firebase/app");
 initializeApp(firebaseConfig);

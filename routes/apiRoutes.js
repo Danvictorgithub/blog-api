@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
+const imageHandler = require('../configs/multer-config');
 // Controllers
 const postController = require('../controllers/postController');
 const userController = require('../controllers/userController');
@@ -8,6 +9,7 @@ const userController = require('../controllers/userController');
 router.get("/", (req,res) => {
 	res.json({message:"Blog-Api"});
 });
+//Authentication routes
 router.get("/login",userController.login_GET);
 router.post("/login",userController.login_POST);
 
@@ -16,6 +18,7 @@ router.post("/signup", userController.signup_POST);
 
 router.get("/posts", postController.getAllPost);
 router.get("/posts/add", postController.addPost);
+router.post("/posts/imageHandler",imageHandler,postController.postImageHandler);
 
 // Authorization Testing
 router.post("/protectedRoute",passport.authenticate('jwt',{session:false}),(req,res) => {
