@@ -17,8 +17,8 @@ router.get("/signup", userController.signup_GET);
 router.post("/signup", userController.signup_POST);
 
 router.get("/posts", postController.getAllPost);
-router.get("/posts/add", postController.addPost);
-router.post("/posts/imageHandler",imageHandler,postController.postImageHandler);
+router.post("/posts/add",passport.authenticate('jwt',{session:false}),imageHandler.single('headlineImage'),postController.addPost);
+router.post("/posts/imageHandler",imageHandler.single('img'),postController.postImageHandler);
 
 // Authorization Testing
 router.post("/protectedRoute",passport.authenticate('jwt',{session:false}),(req,res) => {

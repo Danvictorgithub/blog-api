@@ -9,6 +9,6 @@ const imageFilter = (req, file, cb) => {
     }
   };
 // Filters to Image Only
-const imageHandler = multer({storage:multer.memoryStorage(),fileFilter:imageFilter, limits: { fileSize: 2000000 }}).single('img');
+const imageHandler = multer({storage:multer.memoryStorage(),fileFilter:imageFilter, limits: { fileSize: 2000000 }});
 module.exports = imageHandler; // limit image upload to 2MB
 
