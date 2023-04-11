@@ -37,11 +37,102 @@ async function uploadImage(imageReference,file) {
 	return downloadURL;
 }
 
-exports.getAllPost = (req,res) => {
-	res.json({message:"Not yet Implemented"});
+exports.getAllPost = async (req,res) => {
+	try {
+		const PostsList = await Post.find({});
+		return res.status(200).json({message:"Success",posts:PostsList});
+	}	
+	catch(e) {
+		return res.status(400).json({message:"Couldn't reach DB",error:e});
+	}
 };
-exports.addDummyPost = (req,res) => {
-	res.json({message:"Not yet Implemented"});
+exports.getPost = async (req,res) => {
+	try {
+		const PostObj = await Post.findById(req.params.postID);
+		if (PostObj === null) {
+			return res.status(400).json({message:"Post ID doesn't exist"});
+		}
+		return res.status(200).json({message:"Success",post:PostObj});
+	}
+	catch(e) {
+		return res.status(400).json({message:"Couldn't reach DB",error:e});	
+	}
+};
+exports.updatePost = [
+	async (req,res,next) => { //checks if post exist
+		try {
+			const PostObj = await Post.findById(req.params.postID);
+			if (PostObj === null) {
+				return res.status(400).json({message:"Post ID doesn't exist"});
+			}
+			// return res.status(200).json({message:"Success",post:PostObj});
+			next();
+		}
+		catch(e) {
+			return res.status(400).json({message:"Couldn't reach DB",error:e});	
+		}
+		// return res.status(200).json({message:"updatePost is not yet Implemented"});
+	},
+	body('title')
+		.trim()
+		.isLength({min:8})
+		.withMessage("The title must be atleast 8 characters")
+		.isLength({max:32})
+		.withMessage("The title must not exceed by 32 characters"),
+	body('content')
+		.trim()
+		.isLength({min:32})
+		.withMessage("The content is below minimum requirements")
+		.isLength({max:2000})
+		.withMessage("The content is above maximum requirements"),
+	(req,res) => {
+		//checks if there is inputs anomaly else continue verify token
+		const errors = validationResult(req);
+		if (!errors.isEmpty()) {
+			return res.status(400).json({message:"Invalid requirements",errors:errors.array()});
+		}
+		if (req.file === undefined) {
+			return res.status(400).json({message:"No File Extenstion"});
+		}
+		const token = req.headers.authorization.split(" ")[1];
+		jwt.verify(token,process.env.SECRET_KEY,async function(err,decoded) {
+		if (err) {
+			return res.status(401).json({message:"Invalid JWT"}); //added redundancy for security
+		}
+		else {
+			// confirms JWT and uses user id as "author"
+			// uploads image to firebase storage and assigns it as headlineImage URL
+			const imageReference = imageReferenceGenerator('BlogProject/images/',req.file);
+			const downloadURL = await uploadImage(imageReference,req.file);
+			try {
+				Post.updateOne(
+				{_id:req.params.postID},
+				{$set:{
+					title:req.body.title,
+					headlineImage:downloadURL,
+					content:req.body.content
+				}}).then(()=> {return res.status(200).json({message:"Success"});});
+			}
+			catch(e) {
+				return res.status(400).json({message:"Unexpected error"});
+			}
+		}
+		});
+	}
+
+];
+exports.deletePost = async (req,res) => {
+	try {
+		const PostObj = await Post.findById(req.params.postID);
+		if (PostObj === null) {
+			return res.status(400).json({message:"Post ID doesn't exist"});
+		}
+		Post.deleteOne({_id:req.params.postID}).then(()=> {return res.status(200).json({message:"Successfully deleted Post"})});
+	}
+	catch(e) {
+		return res.status(400).json({message:"Couldn't reach DB",error:e});	
+	}
+	// return res.status(200).json({message:"deletePost is not yet Implemented"});
 };
 exports.addPost = [
 	// validates inputs
@@ -92,9 +183,9 @@ exports.addPost = [
 				.catch((err)=> {
 					console.log(err);
 					return res.status(400).json({message:"Unexpected Error"});
-			})
+			});
 		}
-	})
+	});
 	}
 ];
 exports.postImageHandler = async (req,res) => {
@@ -106,4 +197,4 @@ exports.postImageHandler = async (req,res) => {
 	const imageReference = imageReferenceGenerator('BlogProject/images/',req.file);
 	const downloadURL = await uploadImage(imageReference,req.file);
 	return res.status(200).json({message:"success",img:downloadURL});
-}
+};
