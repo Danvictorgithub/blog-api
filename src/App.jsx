@@ -6,7 +6,9 @@ import Footer from "./components/Footer";
 import LoginForm from "./components/LoginForm";
 import AdminDashboard from "./components/views/AdminDashboard";
   import Overview from './components/views/AdminDashboard-Overview.jsx';
+    import Post from './components/views/Post';
   import CreatePost from './components/views/AdminDashboard-Create_Post.jsx';
+import NotFound from './components/404';
 function App() {
   const urlApi = "http://localhost:5454/api/";
   const [isLoggedIn,setIsLoggedIn] = useState(false);
@@ -25,7 +27,6 @@ function App() {
     }
   ,[]);
   function verifyUserToken(token) {
-    // console.log(token);
     fetch(urlApi+'adminDashboard',
       {
         method:"POST",
@@ -51,11 +52,13 @@ function App() {
       <Header/>
         <Routes>
           <Route className="container" path="/" element={isLoggedIn ? <Navigate replace to="/dashboard"/>: <LoginForm token={token} urlApi={urlApi} verifyUserToken={verifyUserToken}/>}></Route>
-          <Route className="container" path="/dashboard" element={isLoggedIn ? <Navigate replace to="/"/>: <AdminDashboard/>}>
-            <Route index element={<Overview />}></Route>
-            <Route path="overview" element={<Overview />}></Route>
-            <Route path="createPost" element={<CreatePost />}></Route>
+          <Route className="container" path="/dashboard" element={!isLoggedIn ? <Navigate replace to="/"/>: <AdminDashboard token={token}/* verifyUserToken={verifyUserToken} setIsLoggedIn={setIsLoggedIn}*//> }>
+            <Route index element={<Overview urlApi={urlApi}/>}></Route>
+            <Route path="overview" element={<Overview urlApi={urlApi}/>}></Route>
+            <Route path=":id" element={<Post></Post>}></Route>
+            <Route path="createPost" element={<CreatePost urlApi={urlApi} setIsLoggedIn={setIsLoggedIn}/>}></Route>
           </Route>
+          <Route className="container" path="/*" element={<NotFound/>}></Route> 
         </Routes>
         <Footer/>
       </BrowserRouter>

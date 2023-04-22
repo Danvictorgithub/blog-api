@@ -1,14 +1,30 @@
-import React, { useRef } from 'react';
+import React, { useRef,useState } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
+import { useNavigate } from "react-router-dom";
+import uniqid from "uniqid";
+// import { redirect } from "react-router-dom";
 
-export default function TincyMCE({initContent}) {
+export default function TinyMCE({initContent, urlApi,getData,setIsLoggedIn}) {
+  const [errors,setErrors] = useState([]);
+
+  const navigate = useNavigate();
   const editorRef = useRef(null);
-  const log = () => {
-    if (editorRef.current) {
-      console.log(editorRef.current.getContent());
-    }
-  };
+  // const log = () => {
+  //   if (editorRef.current) {
+  //     console.log(editorRef.current.getContent());
+  //   }
+  // };
   const content = "<p>Create your Blog post Here!</p>";
+  async function uploadImage(file) {
+    const formData = new FormData();
+    formData.append('img', file);
+    const response = await fetch(urlApi+'posts/imageHandler',{
+      method:'POST',
+      body:formData
+    });
+    const data = await response.json();
+    return data;
+  }
   function handleFilePicker(callback, value, meta) {
     const input = document.createElement('input');
     input.setAttribute('type', 'file');
@@ -17,31 +33,60 @@ export default function TincyMCE({initContent}) {
 
     input.onchange = () => {
       const file = input.files[0];
+
       const reader = new FileReader();
-
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        const imageData = reader.result;
-        const blob = dataURItoBlob(imageData);
-
-        // Call the callback function with the file blob and any other meta data
-        callback(URL.createObjectURL(blob), { alt: file.name }, {});
-      };
+      reader.readAsArrayBuffer(file);
+      reader.onload = async () => {
+        // const imageData = reader.result;
+        const response = await uploadImage(file);
+        callback(response.img);
+      }
     };
   }
-  function dataURItoBlob(dataURI) {
-    const splitDataURI = dataURI.split(',');
-    const byteString =
-      splitDataURI[0].indexOf('base64') >= 0
-        ? atob(splitDataURI[1])
-        : decodeURI(splitDataURI[1]);
-    const mimeString = splitDataURI[0].split(':')[1].split(';')[0];
-    const ia = new Uint8Array(byteString.length);
+  function getAllInput() {
+    const data = getData();
+    data["content"] = editorRef.current.getContent();
+    return data;
+  }
+  async function postBlog() {
+    const data = getAllInput();
+    const formData = new FormData();
+    const headers = new Headers({
+      'Authorization': `${localStorage.getItem("token")}`,
+    });
+    Object.keys(data).forEach(key => {
+      formData.append(key, data[key]);
+    });
 
-    for (let i = 0; i < byteString.length; i++) {
-      ia[i] = byteString.charCodeAt(i);
+    try {
+    const response = await fetch(urlApi+'posts/add',{
+      method:'POST',
+      headers,
+      body:formData
+    })
+    if (response.status === 401) {
+      setIsLoggedIn(false);
+      navigate("./");
+      const responseObj = await response.json();
+      return responseObj;
     }
-    return new Blob([ia], { type: mimeString });
+    if (response.status === 400) {
+      const responseObj = await response.json();
+      // console.log(responseObj);
+      setErrors(responseObj.errors);
+      return responseObj;
+    }
+    if (response.status === 200) {
+      navigate("/");
+      const responseObj = await response.json();
+      return responseObj;
+    }
+    const responseObj = await response.json();
+    return responseObj; 
+    } catch {
+      setErrors([{msg:"Couldn't Connect to Server"}]);
+    }
+    
   }
   return (
     <>
@@ -71,7 +116,15 @@ export default function TincyMCE({initContent}) {
           file_picker_callback: handleFilePicker,
         }}
       />
-      <button onClick={log}>Log editor content</button>
+      <button id="postSubmit" onClick={postBlog}>Submit Blog</button>
+      <ul className="errorList">
+        {errors.map((error) => {
+        return (
+          <li key={uniqid()}>{error.msg}</li>
+          )
+       })}
+      </ul>
+      
     </>
   );
 }

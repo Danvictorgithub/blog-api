@@ -2,8 +2,19 @@ import React from 'react'
 import {Link, Outlet} from 'react-router-dom';
 
 
-function AdminDashboard() {
-
+function AdminDashboard({/*token,*/urlApi/*,verifyUserToken,setIsLoggedIn*/}) {
+// 	useEffect(() => 
+  //   {  
+  //     console.log("this is called");
+  //     if (localStorage.getItem('token') != null) {
+  //       token.current = localStorage.getItem('token');
+  //       verifyUserToken(token.current);
+  //     }
+  //     else {
+  //     }
+  //   }
+  // ,[]);
+	
 	return (
 		<div className="AdminDashboard container wrapper">
 			<div className="adminNav">
@@ -13,7 +24,7 @@ function AdminDashboard() {
 				<Link to="deletePost">Delete Post</Link>
 			</div>
 			<div className="adminContent">
-				<Outlet />
+				<Outlet urlApi={urlApi}/>
 			</div>
 		</div>
 	)
