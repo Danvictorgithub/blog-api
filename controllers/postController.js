@@ -2,9 +2,17 @@ const {getStorage,ref, uploadBytes,getDownloadURL} = require("firebase/storage")
 const Post = require('../models/post');
 const jwt = require("jsonwebtoken");
 const {body,validationResult} = require("express-validator");
+
+const createDOMPurify = require('dompurify');
+const { JSDOM } = require('jsdom');
+const dompurify = createDOMPurify(new JSDOM().window);
+
 require('dotenv').config();
 
 //Helper Functions
+function TinyMCEValidator(value) {
+	return dompurify.sanitize(value);
+}
 function getCurrentDateTime() {
 	//randomizer for filename
 	const now = new Date();
@@ -37,6 +45,9 @@ async function uploadImage(imageReference,file) {
 	return downloadURL;
 }
 
+
+
+
 exports.getAllPost = async (req,res) => {
 	try {
 		const PostsList = await Post.find({});
@@ -46,9 +57,9 @@ exports.getAllPost = async (req,res) => {
 		return res.status(400).json({message:"Couldn't reach DB",error:e});
 	}
 };
-exports.getPost = async (req,res) => {
+exports.getPost = async (req,res) => {	
 	try {
-		const PostObj = await Post.findById(req.params.postID);
+		const PostObj = await Post.findById(req.params.postID).populate("author","username");
 		if (PostObj === null) {
 			return res.status(400).json({message:"Post ID doesn't exist"});
 		}
@@ -81,6 +92,7 @@ exports.updatePost = [
 		.withMessage("The title must not exceed by 32 characters"),
 	body('content')
 		.trim()
+		.customSanitizer(TinyMCEValidator)
 		.isLength({min:32})
 		.withMessage("The content is below minimum requirements")
 		.isLength({max:2000})
@@ -146,7 +158,7 @@ exports.addPost = [
 		.trim()
 		.isLength({min:32})
 		.withMessage("The content is below minimum requirements")
-		.isLength({max:2000})
+		.isLength({max:10000})
 		.withMessage("The content is above maximum requirements"),
 	(req,res) => {
 		//checks if there is inputs anomaly else continue verify token
