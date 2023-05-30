@@ -45,9 +45,6 @@ async function uploadImage(imageReference,file) {
 	return downloadURL;
 }
 
-
-
-
 exports.getAllPost = async (req,res) => {
 	try {
 		const PostsList = await Post.find({});
@@ -210,3 +207,7 @@ exports.postImageHandler = async (req,res) => {
 	const downloadURL = await uploadImage(imageReference,req.file);
 	return res.status(200).json({message:"success",img:downloadURL});
 };
+
+//To-do-list
+//add comments
+//likes
