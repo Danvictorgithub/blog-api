@@ -32,7 +32,7 @@ function fileNameFixer(filename) {
 function imageReferenceGenerator(fileDirectory,file) {
 	const firebaseDir = fileDirectory;
 	const imageFileName = file.originalname;
-	const uniqueImageFileName = fileNameFixer(imageFileName); 
+	const uniqueImageFileName = fileNameFixer(imageFileName);
 	const imageReference = firebaseDir+uniqueImageFileName;
 	return imageReference;
 }
@@ -47,14 +47,14 @@ async function uploadImage(imageReference,file) {
 
 exports.getAllPost = async (req,res) => {
 	try {
-		const PostsList = await Post.find({});
+		const PostsList = await Post.find({}).populate("author","username").select(["headlineImage","author","title"]);
 		return res.status(200).json({message:"Success",posts:PostsList});
-	}	
+	}
 	catch(e) {
 		return res.status(400).json({message:"Couldn't reach DB",error:e});
 	}
 };
-exports.getPost = async (req,res) => {	
+exports.getPost = async (req,res) => {
 	try {
 		const PostObj = await Post.findById(req.params.postID).populate("author","username");
 		if (PostObj === null) {
@@ -63,7 +63,7 @@ exports.getPost = async (req,res) => {
 		return res.status(200).json({message:"Success",post:PostObj});
 	}
 	catch(e) {
-		return res.status(400).json({message:"Couldn't reach DB",error:e});	
+		return res.status(400).json({message:"Couldn't reach DB",error:e});
 	}
 };
 exports.updatePost = [
@@ -77,7 +77,7 @@ exports.updatePost = [
 			next();
 		}
 		catch(e) {
-			return res.status(400).json({message:"Couldn't reach DB",error:e});	
+			return res.status(400).json({message:"Couldn't reach DB",error:e});
 		}
 		// return res.status(200).json({message:"updatePost is not yet Implemented"});
 	},
@@ -139,7 +139,7 @@ exports.deletePost = async (req,res) => {
 		Post.deleteOne({_id:req.params.postID}).then(()=> {return res.status(200).json({message:"Successfully deleted Post"})});
 	}
 	catch(e) {
-		return res.status(400).json({message:"Couldn't reach DB",error:e});	
+		return res.status(400).json({message:"Couldn't reach DB",error:e});
 	}
 	// return res.status(200).json({message:"deletePost is not yet Implemented"});
 };
@@ -163,8 +163,17 @@ exports.addPost = [
 		if (!errors.isEmpty()) {
 			return res.status(400).json({message:"Invalid requirements",errors:errors.array()});
 		}
-		if (req.file === undefined) {
-			return res.status(400).json({message:"No File Extenstion"});
+		if (!req.file  || Object.keys(req.file).length === 0) {
+			return res.status(400).json({message:"No Image Extenstion"});
+		}
+		const fileSizeInBytes = req.file.size;
+
+		// Define the maximum allowed file size (in bytes)
+		const maxFileSize = 2 * 1024 * 1024; // 5MB
+
+		// Check if the file size exceeds the maximum limit
+		if (fileSizeInBytes > maxFileSize) {
+			return res.status(400).json({message:"Image size exceeds 2 megabytes requirements"});
 		}
 		const token = req.headers.authorization.split(" ")[1];
 		jwt.verify(token,process.env.SECRET_KEY,async function(err,decoded) {
