@@ -9,6 +9,7 @@ function LoginForm({token,urlApi,verifyUserToken}) {
 	// Error indicators
 	const [isInvalidPassword,setIsInvalidPassword] = useState(false);
 	const [isNetworkError,setIsNetworkError] = useState(false);
+	const [isAuthorized,setIsAuthorized] = useState(null);
 
 	// useEffect(()=>{
 	// },[isInvalidPassword]);
@@ -40,6 +41,10 @@ function LoginForm({token,urlApi,verifyUserToken}) {
 				setIsInvalidPassword(true);
 			}
 			else {
+				if (response.user.isAdmin === false) {
+					setIsAuthorized(false);
+					return;
+				}
 				// saves JWT token to LocalStorage
 				localStorage.setItem('token',`Bearer ${response["token"]}`);
 				setIsInvalidPassword(false);
@@ -51,7 +56,7 @@ function LoginForm({token,urlApi,verifyUserToken}) {
 		})
 		.catch(() => {
 			setIsNetworkError(true);
-		});		
+		});
 	}
 	return (
 		<div className="loginForm container">
@@ -66,9 +71,10 @@ function LoginForm({token,urlApi,verifyUserToken}) {
 				</label>
 				<button onClick={postData} type="submit">Sign in</button>
 			</form>
+			{isAuthorized === null ? null : isAuthorized === true ? null: <p className="formError">Unauthorized</p>}
 			{isInvalidPassword ? <p className="formError">Invalid Username or Password</p> : <p className="formError"></p>}
 			{isNetworkError ? <p className="formError">Couldn't get request from server</p>:<p className="formError"></p>}
-			
+
 		</div>
 	);
 }

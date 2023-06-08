@@ -5,8 +5,8 @@ export default function Post({urlApi}) {
 	const [content,setContent] = useState(null);
 	const navigate = useNavigate();
 	useEffect(()=>{
-		const response = fetch(urlApi+`posts/${id}`).then(response => {
-			if (response.status == 400) {
+		fetch(urlApi+`posts/${id}`).then(response => {
+			if (response.status === 400) {
 				navigate("/")
 				return;
 			}
@@ -14,9 +14,6 @@ export default function Post({urlApi}) {
 		}).then(response => setContent(response.post));
 	},[]);
 	useEffect(()=> console.log(content),[content])
-	//todo
-		// identify if id exist in the database
-		// format content
 	return (
 		<div className="blogPost">
 			{(content === null) ?
@@ -25,7 +22,7 @@ export default function Post({urlApi}) {
 				<h2>Blog ID: {content._id}</h2>
 				<h1>{content.title}</h1>
 				<h2>{content.author.username}</h2>
-				<img src={content.headlineImage}></img>
+				<img src={content.headlineImage} alt="Blog Hero"></img>
 				<div className="content" dangerouslySetInnerHTML={{ __html: content.content }}></div>
 			</>
 			}
