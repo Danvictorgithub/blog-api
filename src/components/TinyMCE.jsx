@@ -5,6 +5,7 @@ import uniqid from "uniqid";
 // import { redirect } from "react-router-dom";
 
 export default function TinyMCE({initContent, urlApi,getData,setIsLoggedIn}) {
+  const [message,setMessage] = useState("")
   const [errors,setErrors] = useState([]);
 
   const navigate = useNavigate();
@@ -72,8 +73,12 @@ export default function TinyMCE({initContent, urlApi,getData,setIsLoggedIn}) {
     }
     if (response.status === 400) {
       const responseObj = await response.json();
-      // console.log(responseObj);
-      setErrors(responseObj.errors);
+      console.log(responseObj);
+      setMessage(responseObj.message);
+      if (responseObj.errors !== undefined) {
+        setErrors(responseObj.errors)
+      }
+      else {setErrors([])}
       return responseObj;
     }
     if (response.status === 200) {
@@ -82,11 +87,10 @@ export default function TinyMCE({initContent, urlApi,getData,setIsLoggedIn}) {
       return responseObj;
     }
     const responseObj = await response.json();
-    return responseObj; 
+    return responseObj;
     } catch {
       setErrors([{msg:"Couldn't Connect to Server"}]);
     }
-    
   }
   return (
     <>
@@ -117,6 +121,7 @@ export default function TinyMCE({initContent, urlApi,getData,setIsLoggedIn}) {
         }}
       />
       <button id="postSubmit" onClick={postBlog}>Submit Blog</button>
+      <p>{message}</p>
       <ul className="errorList">
         {errors.map((error) => {
         return (
@@ -124,7 +129,7 @@ export default function TinyMCE({initContent, urlApi,getData,setIsLoggedIn}) {
           )
        })}
       </ul>
-      
+
     </>
   );
 }

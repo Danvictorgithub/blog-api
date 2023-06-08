@@ -224,6 +224,14 @@ label[for="headLineUpload"] {
     justify-content: center;
     align-items:center;
 }
+
+.blogPost {
+
+}
+.blogPost img {
+    width:100%;
+    object-fit: cover;
+}
 @media (max-width: 600px) {
     .header {
         font-size: 0.6rem;

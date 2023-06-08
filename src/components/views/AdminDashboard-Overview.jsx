@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import PostLink from "./AdminDashboard-Overview-Post";
+import uniqid from "uniqid";
+import { Link } from 'react-router-dom';
 function Overview ({urlApi}) {
 	const [postList,setPostList] = useState([]);
 	// const listPost = [{id:1,title:"meme1"},{id:2,title:"meme2"}];
@@ -8,20 +9,21 @@ function Overview ({urlApi}) {
 		fetch(urlApi+"posts")
 			.then((response) => response.json())
 			.then((response)=> {
-				// console.log(response.posts);
 				setPostList([...response.posts]);
-				console.log("postList",postList);
 			})
 			.catch(()=>{
 				setError("Unable to connect to server");
 			})
 	},[]);
+	useEffect(()=> console.log(postList),[postList])
 	return (
 		<>
 		<p>{error}</p>
 		{postList.map((post)=> {
-			return <PostLink title={post.title} id={post._id}></PostLink>
-		})}	
+			return <div className="Post" key={ uniqid() }>
+				<Link to={`/dashboard/${post._id}`}><h4>{post.title}</h4></Link>
+			</div>
+		})}
 		</>
 	)
 }

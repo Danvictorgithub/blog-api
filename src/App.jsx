@@ -14,8 +14,8 @@ function App() {
   const [isLoggedIn,setIsLoggedIn] = useState(false);
   const token = useRef(``);
   // initialization life cycle -> checks if there is already a JWT token then verifies if valid else clears LocalStorage
-  useEffect(() => 
-    {   
+  useEffect(() =>
+    {
       // console.log(localStorage.getItem('token'));
       if (localStorage.getItem('token') != null) {
         token.current = localStorage.getItem('token');
@@ -39,7 +39,7 @@ function App() {
       if (response.status === 200) {
         // console.log("success");
         setIsLoggedIn(true);
-      } 
+      }
       else {
         // console.log("failure");
         setIsLoggedIn(false);
@@ -55,10 +55,10 @@ function App() {
           <Route className="container" path="/dashboard" element={!isLoggedIn ? <Navigate replace to="/"/>: <AdminDashboard token={token}/* verifyUserToken={verifyUserToken} setIsLoggedIn={setIsLoggedIn}*//> }>
             <Route index element={<Overview urlApi={urlApi}/>}></Route>
             <Route path="overview" element={<Overview urlApi={urlApi}/>}></Route>
-            <Route path=":id" element={<Post></Post>}></Route>
+            <Route path=":id" element={<Post urlApi={urlApi}></Post>}></Route>
             <Route path="createPost" element={<CreatePost urlApi={urlApi} setIsLoggedIn={setIsLoggedIn}/>}></Route>
           </Route>
-          <Route className="container" path="/*" element={<NotFound/>}></Route> 
+          <Route className="container" path="/*" element={<NotFound/>}></Route>
         </Routes>
         <Footer/>
       </BrowserRouter>
