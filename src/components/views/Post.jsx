@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {useNavigate, useParams} from "react-router-dom";
+import {Link, useNavigate, useParams} from "react-router-dom";
 export default function Post({urlApi}) {
 	let {id} = useParams();
 	const [content,setContent] = useState(null);
@@ -13,7 +13,20 @@ export default function Post({urlApi}) {
 			return response.json();
 		}).then(response => setContent(response.post));
 	},[]);
-	useEffect(()=> console.log(content),[content])
+	// useEffect(()=> console.log(content),[content])
+	function deletePost() {
+		fetch(urlApi+`posts/${id}`,{
+            method: "DELETE"
+        }).then(response => {
+            if (response.status === 400) {
+                navigate("/")
+                return;
+            }
+            return response.json();
+        }).then(response => {
+            navigate("/")
+        });
+	};
 	return (
 		<div className="blogPost">
 			{(content === null) ?
@@ -24,6 +37,8 @@ export default function Post({urlApi}) {
 				<h2>{content.author.username}</h2>
 				<img src={content.headlineImage} alt="Blog Hero"></img>
 				<div className="content" dangerouslySetInnerHTML={{ __html: content.content }}></div>
+				<Link to={`edit`}><button type="button" className="btn">Edit</button></Link>
+				<button onClick={deletePost} className="btn">Delete</button>
 			</>
 			}
 		</div>

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import uniqid from "uniqid";
 // import { redirect } from "react-router-dom";
 
-export default function TinyMCE({initContent, urlApi,getData,setIsLoggedIn}) {
+export default function TinyMCE({initContent, urlApi,getData,setIsLoggedIn,isNewPost,postId}) {
   const [message,setMessage] = useState("")
   const [errors,setErrors] = useState([]);
 
@@ -48,6 +48,49 @@ export default function TinyMCE({initContent, urlApi,getData,setIsLoggedIn}) {
     const data = getData();
     data["content"] = editorRef.current.getContent();
     return data;
+  }
+  async function editBlog() {
+    const data = getAllInput();
+    const formData = new FormData();
+    const headers = new Headers({
+      'Authorization': `${localStorage.getItem("token")}`,
+    });
+    Object.keys(data).forEach(key => {
+      formData.append(key, data[key]);
+    });
+    formData.append('postID', postId);
+    try {
+    const response = await fetch(urlApi+'posts/'+postId,{
+      method:'PUT',
+      headers,
+      body:formData
+    })
+    if (response.status === 401) {
+      setIsLoggedIn(false);
+      navigate("./");
+      const responseObj = await response.json();
+      return responseObj;
+    }
+    if (response.status === 400) {
+      const responseObj = await response.json();
+      console.log(responseObj);
+      setMessage(responseObj.message);
+      if (responseObj.errors !== undefined) {
+        setErrors(responseObj.errors)
+      }
+      else {setErrors([])}
+      return responseObj;
+    }
+    if (response.status === 200) {
+      navigate("/");
+      const responseObj = await response.json();
+      return responseObj;
+    }
+    const responseObj = await response.json();
+    return responseObj;
+    } catch {
+      setErrors([{msg:"Couldn't Connect to Server"}]);
+    }
   }
   async function postBlog() {
     const data = getAllInput();
@@ -120,7 +163,7 @@ export default function TinyMCE({initContent, urlApi,getData,setIsLoggedIn}) {
           file_picker_callback: handleFilePicker,
         }}
       />
-      <button id="postSubmit" onClick={postBlog}>Submit Blog</button>
+      {isNewPost ? <button id="postSubmit" onClick={editBlog}>Edit Blog</button>: <button id="postSubmit" onClick={postBlog}>Submit Blog</button>}
       <p>{message}</p>
       <ul className="errorList">
         {errors.map((error) => {

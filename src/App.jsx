@@ -8,9 +8,10 @@ import AdminDashboard from "./components/views/AdminDashboard";
   import Overview from './components/views/AdminDashboard-Overview.jsx';
     import Post from './components/views/Post';
   import CreatePost from './components/views/AdminDashboard-Create_Post.jsx';
+  import EditPost from './components/views/EditPost.jsx';
 import NotFound from './components/404';
 function App() {
-  const urlApi = "http://localhost:5454/api/";
+  const urlApi = "https://leemans-tech-blog-api.onrender.com";
   const [isLoggedIn,setIsLoggedIn] = useState(false);
   const token = useRef(``);
   // initialization life cycle -> checks if there is already a JWT token then verifies if valid else clears LocalStorage
@@ -56,6 +57,7 @@ function App() {
             <Route index element={<Overview urlApi={urlApi}/>}></Route>
             <Route path="overview" element={<Overview urlApi={urlApi}/>}></Route>
             <Route path=":id" element={<Post urlApi={urlApi}></Post>}></Route>
+            <Route path=":id/edit" element={<EditPost urlApi={urlApi} setIsLoggedIn={setIsLoggedIn}></EditPost>}></Route>
             <Route path="createPost" element={<CreatePost urlApi={urlApi} setIsLoggedIn={setIsLoggedIn}/>}></Route>
           </Route>
           <Route className="container" path="/*" element={<NotFound/>}></Route>

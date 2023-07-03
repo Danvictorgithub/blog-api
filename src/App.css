@@ -224,7 +224,15 @@ label[for="headLineUpload"] {
     justify-content: center;
     align-items:center;
 }
-
+.btn {
+    display: inline-block;
+    background-color: white;
+    border: 1px solid #454545;
+    border-radius: 1rem ;
+    font-size: 2rem;
+    font-weight: bold;
+    width: 200px;
+}
 .blogPost {
 
 }
