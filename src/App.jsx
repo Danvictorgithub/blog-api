@@ -11,7 +11,7 @@ import AdminDashboard from "./components/views/AdminDashboard";
   import EditPost from './components/views/EditPost.jsx';
 import NotFound from './components/404';
 function App() {
-  const urlApi = "https://leemans-tech-blog-api.onrender.com";
+  const urlApi = "https://leemans-tech-blog-api.onrender.com/api/";
   const [isLoggedIn,setIsLoggedIn] = useState(false);
   const token = useRef(``);
   // initialization life cycle -> checks if there is already a JWT token then verifies if valid else clears LocalStorage
