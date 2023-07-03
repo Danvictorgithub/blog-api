@@ -8,8 +8,8 @@ const postSchema = new Schema({
 	content:{type:String,minLength:32,maxLength:10000},
 	comments:[
 		{
-			user:{type:Schema.Types.ObjectId,ref:"User",required:true},
-			comment:{type:String,minLength:8,maxLength:256}
+			type: mongoose.Schema.Types.ObjectId,
+            ref: 'Comment'
 		}
 	],
 });

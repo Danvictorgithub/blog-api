@@ -19,6 +19,7 @@ router.post("/signup", userController.signup_POST);
 router.get("/posts", postController.getAllPost);
 router.get("/posts/:postID",postController.getPost);
 router.put("/posts/:postID",passport.authenticate('jwt',{session:false}),imageHandler.single('headlineImage'),postController.updatePost);
+router.put("/posts/:postID/addComment",passport.authenticate('jwt',{session:false}),postController.addComment);
 router.delete("/posts/:postID",postController.deletePost);
 router.post("/posts/add",passport.authenticate('jwt',{session:false}),imageHandler.single('headlineImage'),postController.addPost);
 router.post("/posts/imageHandler",imageHandler.single('img'),postController.postImageHandler);
