@@ -92,10 +92,11 @@ exports.updatePost = [
 		.customSanitizer(TinyMCEValidator)
 		.isLength({min:32})
 		.withMessage("The content is below minimum requirements")
-		.isLength({max:2000})
+		.isLength({max:10000})
 		.withMessage("The content is above maximum requirements"),
 	(req,res) => {
 		//checks if there is inputs anomaly else continue verify token
+		console.log(req.body.params);
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
 			return res.status(400).json({message:"Invalid requirements",errors:errors.array()});
