@@ -268,7 +268,6 @@ exports.addLike = async (req,res) => {
                 user = decoded.user._id;
             }
         });
-		// console.log(user);
 		let CheckQuery = await Post.findOne({
 			_id: req.params.postID,
 		  })
@@ -300,4 +299,34 @@ exports.addLike = async (req,res) => {
 	catch(e) {
 			return res.status(400).json({message:"Couldn't reach DB",error:e});
 		}
+};
+exports.postCheckLike = async (req,res) => {
+	try {
+		let PostObj = await Post.findById(req.params.postID).then((result)=> {return result});
+        if (PostObj == null) {
+            return res.status(400).json({message:"Post ID doesn't exist"});
+        }
+        const token = req.headers.authorization.split(" ")[1];
+        let user = null;
+        jwt.verify(token,process.env.SECRET_KEY,async (err,decoded) => {
+            if (err) {
+                return res.status(401).json({message:"Invalid JWT"}); //added redundancy for security
+            }
+            else {
+                user = decoded.user._id;
+            }
+        });
+		let CheckQuery = await Post.findOne({
+			_id: req.params.postID,
+		  })
+		  .populate({path:"likes",match:{user:user}});
+		 if (CheckQuery.likes.length <= 0) {
+			return res.status(200).json({message:"Not Liked"});
+		 } else {
+			return res.status(200).json({message:"Liked"});
+		 }
+	}
+	catch (e) {
+		return res.status(400).json({message:"Couldn't reach DB",error:e});
+	}
 };
