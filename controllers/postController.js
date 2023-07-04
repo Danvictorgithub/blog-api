@@ -1,6 +1,7 @@
 const {getStorage,ref, uploadBytes,getDownloadURL} = require("firebase/storage");
 const Post = require('../models/post');
 const Comment = require('../models/comment');
+const Like = require('../models/like');
 const jwt = require("jsonwebtoken");
 const {body,validationResult} = require("express-validator");
 
@@ -31,6 +32,7 @@ function fileNameFixer(filename) {
 	return `${getCurrentDateTime()}_${filename}`;
 }
 function imageReferenceGenerator(fileDirectory,file) {
+	//Generates a Filename for the image Reference
 	const firebaseDir = fileDirectory;
 	const imageFileName = file.originalname;
 	const uniqueImageFileName = fileNameFixer(imageFileName);
@@ -38,6 +40,7 @@ function imageReferenceGenerator(fileDirectory,file) {
 	return imageReference;
 }
 async function uploadImage(imageReference,file) {
+	// Helper function for uploading Image from Firebase
 	const storage = getStorage();
 	const imageRef = ref(storage, imageReference);
 	const metadata = {contentType:file.mimetype};
@@ -221,7 +224,7 @@ exports.postImageHandler = async (req,res) => {
 exports.addComment = async (req,res) => {
 	try {
 	 const PostObj = await Post.findById(req.params.postID).then((result)=> {return result});
-	 console.log(PostObj);
+	//  console.log(PostObj);
 	 if (PostObj == null) {
 		return res.status(400).json({message:"Post ID doesn't exist"});
 	 }
@@ -235,7 +238,7 @@ exports.addComment = async (req,res) => {
 				user = decoded.user._id;
 			}
 		});
-		console.log(req.body.comment);
+		// console.log(req.body.comment);
 		const newComment = await new Comment({
 			user:user,
 			comment:req.body.comment
@@ -248,5 +251,53 @@ exports.addComment = async (req,res) => {
 		return res.status(400).json({message:"Couldn't reach DB",error:e});
 	}
 }
-//To-do-list
-//add comments
+exports.addLike = async (req,res) => {
+	// Toggle Likes status
+	try {
+		let PostObj = await Post.findById(req.params.postID).then((result)=> {return result});
+        if (PostObj == null) {
+            return res.status(400).json({message:"Post ID doesn't exist"});
+        }
+        const token = req.headers.authorization.split(" ")[1];
+        let user = null;
+        jwt.verify(token,process.env.SECRET_KEY,async (err,decoded) => {
+            if (err) {
+                return res.status(401).json({message:"Invalid JWT"}); //added redundancy for security
+            }
+            else {
+                user = decoded.user._id;
+            }
+        });
+		// console.log(user);
+		let CheckQuery = await Post.findOne({
+			_id: req.params.postID,
+		  })
+		  .populate({path:"likes",match:{user:user}});
+		if (CheckQuery.likes.length <= 0) {
+			const newLike = await new Like({
+				user:user
+			}).save();
+			Post.updateOne({_id:req.params.postID},{$push:{likes:[newLike]},$inc:{likesCount:1}})
+			.then(()=> {return res.status(200).json({message:"Incremented"})})
+			.catch((err)=> {return res.status(400).json({message:"Unexpected Error"})});
+			return;
+		}
+		else {
+			Post.updateOne(
+				{ _id: req.params.postID },
+				{
+				  $pull: {
+					likes: CheckQuery.likes[0]._id.toString()
+				  },
+				  $inc: { likesCount: -1 }
+				}
+			  )
+			.then(()=> {return res.status(200).json({message:"Decremented"})})
+			.catch((err)=> {return res.status(400).json({message:"Unexpected Error"})});
+			return;
+		}
+	}
+	catch(e) {
+			return res.status(400).json({message:"Couldn't reach DB",error:e});
+		}
+};
