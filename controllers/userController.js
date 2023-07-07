@@ -14,11 +14,11 @@ exports.login_POST = (req,res,next) => {
 	// passport.authenticate('local',{session:false},(err,user,info) =>{authentication})(req,res) //It is an object constructor with double return values
 	// authentication -> - error or user doesn't exist returns statusCode 400 (Bad Request)
 	//					 - success then login user with JWT token used for user authentication to protected routes
-	
+
 	passport.authenticate('local',{session:false},(err,user,info) => {
 
 		// session is set to false since API is used for authentication
-		
+
 		if (err || !user) {
 			return res.status(400).json({
 				message: "Invalid Password",
@@ -35,7 +35,7 @@ exports.login_POST = (req,res,next) => {
 						message: "Something is not right",
 					});
 				}
-				return res.json({user, token});
+				return res.status(200).json({user, token});
 			});
 		   });
 	})(req,res);
@@ -46,7 +46,7 @@ exports.signup_GET = (req,res) => {
 exports.signup_POST = [
 
 	// check('params').sanitationRules({params:paramsValue}) Sanitizes req.body.<formData>
-	
+
 	check('username').trim().isLength({min:8}).withMessage("Username must be more than or equal 8 characters").isLength({max:16}).withMessage("Username must be less than 16 characters").escape(),
 	check('password').isAlphanumeric().withMessage("Password must be Alphanumeric").isLength({min:8}).withMessage("Password must be atleast 8 characters").isLength({max:128}).withMessage("Password exceeds 128 character limit").escape(),
 	(req,res,next) => {
@@ -62,7 +62,7 @@ exports.signup_POST = [
 			}
 
 			// Checks if user already exist in the database, otherwise create new User with hashed password
-			
+
 			if (result == null) {
 				bcrypt.hash(req.body.password,12,(err,hashedPassword) => {
 					if (err) {
@@ -89,5 +89,5 @@ exports.signup_POST = [
 				});
 			}
 		});
-	}	
+	}
 ];

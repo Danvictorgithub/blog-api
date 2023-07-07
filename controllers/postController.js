@@ -1,4 +1,5 @@
 const {getStorage,ref, uploadBytes,getDownloadURL} = require("firebase/storage");
+const cheerio = require("cheerio");
 const Post = require('../models/post');
 const Comment = require('../models/comment');
 const Like = require('../models/like');
@@ -48,10 +49,15 @@ async function uploadImage(imageReference,file) {
 	const downloadURL = await getDownloadURL(ref(storage,snapshot.metadata.fullPath));
 	return downloadURL;
 }
-
 exports.getAllPost = async (req,res) => {
 	try {
-		const PostsList = await Post.find({}).populate("author","username").select(["headlineImage","author","title"]);
+		const PostsList = await Post.find({}).populate("author","username").select(["headlineImage","author","title","content"]);
+		PostsList.forEach((post) => {
+			const $ = cheerio.load(post.content);
+			const postText = $.text().replace(/\n/g, '');
+			const words = postText.split(" ");
+			post.content = words.splice(0,25).join(" ");
+		});
 		return res.status(200).json({message:"Success",posts:PostsList});
 	}
 	catch(e) {
