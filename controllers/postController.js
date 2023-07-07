@@ -9,7 +9,7 @@ const {body,validationResult} = require("express-validator");
 const createDOMPurify = require('dompurify');
 const { JSDOM } = require('jsdom');
 const dompurify = createDOMPurify(new JSDOM().window);
-
+const IndexPostLimit = 30;
 require('dotenv').config();
 
 //Helper Functions
@@ -56,7 +56,12 @@ exports.getAllPost = async (req,res) => {
 			const $ = cheerio.load(post.content);
 			const postText = $.text().replace(/\n/g, '');
 			const words = postText.split(" ");
-			post.content = words.splice(0,25).join(" ");
+			if (words.length < 25) {
+				post.content = words.splice(0,IndexPostLimit).join(" ");
+			}
+			else {
+				post.content = words.splice(0,IndexPostLimit).join(" ")+"...";
+			}
 		});
 		return res.status(200).json({message:"Success",posts:PostsList});
 	}
