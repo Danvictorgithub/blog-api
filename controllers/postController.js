@@ -71,7 +71,9 @@ exports.getAllPost = async (req,res) => {
 };
 exports.getPost = async (req,res) => {
 	try {
-		const PostObj = await Post.findById(req.params.postID).populate("author","username");
+		const PostObj = await Post.findById(req.params.postID)
+			.populate("author","username")
+			.populate({path:"comments",populate:{path:"user",select:"username"}})
 		if (PostObj === null) {
 			return res.status(400).json({message:"Post ID doesn't exist"});
 		}
