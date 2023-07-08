@@ -17,6 +17,10 @@ const postSchema = new Schema({
 	date: {
 		type: Date,
 		default: Date.now
+	},
+	isEdited: {
+		type: Boolean,
+        default: false
 	}
 });
 

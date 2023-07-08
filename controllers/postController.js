@@ -354,3 +354,31 @@ exports.postCheckLike = async (req,res) => {
 		return res.status(400).json({message:"Couldn't reach DB",error:e});
 	}
 };
+exports.getUserPost = async (req,res) => {
+	try {
+		jwt.verify(req.headers.authorization.split(" ")[1],process.env.SECRET_KEY,async (err,decoded) => {
+			if (err) {
+				return res.status(401).json({message:"Invalid JWT"}); //added redundancy for security
+			}
+			else {
+				const user = decoded.user._id;
+				const PostsList = await Post.find({author:user}).populate("author","username").select(["headlineImage","author","title","content","date"]);
+				PostsList.forEach((post) => {
+				const $ = cheerio.load(post.content);
+				const postText = $.text().replace(/\n/g, '');
+				const words = postText.split(" ");
+				if (words.length < 25) {
+					post.content = words.splice(0,IndexPostLimit).join(" ");
+				}
+				else {
+					post.content = words.splice(0,IndexPostLimit).join(" ")+"...";
+				}
+			});
+		return res.status(200).json({message:"Success",posts:PostsList});
+			}
+		})
+	}
+	catch(e) {
+		return res.status(400).json({message:"Couldn't reach DB",error:e});
+	}
+}
