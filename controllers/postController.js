@@ -102,7 +102,7 @@ exports.updatePost = [
 		.trim()
 		.isLength({min:8})
 		.withMessage("The title must be atleast 8 characters")
-		.isLength({max:32})
+		.isLength({max:64})
 		.withMessage("The title must not exceed by 32 characters"),
 	body('content')
 		.trim()
@@ -167,7 +167,7 @@ exports.addPost = [
 		.trim()
 		.isLength({min:8})
 		.withMessage("The title must be atleast 8 characters")
-		.isLength({max:32})
+		.isLength({max:64})
 		.withMessage("The title must not exceed by 32 characters"),
 	body('content')
 		.trim()
