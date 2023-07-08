@@ -214,7 +214,7 @@ exports.addPost = [
 				.save()
 				.then((result)=> {
 					console.log(`New Post Added: ${result.title}`);
-					return res.status(200).json({message:"Success"});
+					return res.status(200).json({message:"Success",postId:result._id});
 				})
 				.catch((err)=> {
 					console.log(err);
