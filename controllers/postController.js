@@ -51,7 +51,7 @@ async function uploadImage(imageReference,file) {
 }
 exports.getAllPost = async (req,res) => {
 	try {
-		const PostsList = await Post.find({}).populate("author","username").select(["headlineImage","author","title","content"]);
+		const PostsList = await Post.find({}).populate("author","username").select(["headlineImage","author","title","content","date"]);
 		PostsList.forEach((post) => {
 			const $ = cheerio.load(post.content);
 			const postText = $.text().replace(/\n/g, '');
