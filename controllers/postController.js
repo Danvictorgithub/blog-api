@@ -234,36 +234,47 @@ exports.postImageHandler = async (req,res) => {
 	const downloadURL = await uploadImage(imageReference,req.file);
 	return res.status(200).json({message:"success",img:downloadURL});
 };
-exports.addComment = async (req,res) => {
-	try {
-	 const PostObj = await Post.findById(req.params.postID).then((result)=> {return result});
-	//  console.log(PostObj);
-	 if (PostObj == null) {
-		return res.status(400).json({message:"Post ID doesn't exist"});
-	 }
-	 const token = req.headers.authorization.split(" ")[1];
-		let user = null;
-		jwt.verify(token,process.env.SECRET_KEY,async (err,decoded) => {
-			if (err) {
-				return res.status(401).json({message:"Invalid JWT"}); //added redundancy for security
+exports.addComment = [
+	// validates inputs
+	body("comment")
+		.trim()
+		.isLength({min:1,max:1000})
+		.withMessage("The comment must be atleast 1 character and no more than 1000"),
+	async (req,res) => {
+		const errors = validationResult(req);
+			if (!errors.isEmpty()) {
+				return res.status(400).json({message:"Invalid Requirments",errors:errors.array()})
 			}
-			else {
-				user = decoded.user._id;
-			}
-		});
-		// console.log(req.body.comment);
-		const newComment = await new Comment({
-			user:user,
-			comment:req.body.comment
-		}).save().then(result => result);
-		Post.updateOne({_id:req.params.postID},{$push:{comments:[newComment]}})
-		.then(()=> {return res.status(200).json({message:"Success"})})
-		.catch((err)=> {return res.status(400).json({message:"Unexpected Error"})});
+		try {
+		 const PostObj = await Post.findById(req.params.postID).then((result)=> {return result});
+		//  console.log(PostObj);
+		 if (PostObj == null) {
+			return res.status(400).json({message:"Post ID doesn't exist"});
+		 }
+		 const token = req.headers.authorization.split(" ")[1];
+			let user = null;
+			jwt.verify(token,process.env.SECRET_KEY,async (err,decoded) => {
+				if (err) {
+					return res.status(401).json({message:"Invalid JWT"}); //added redundancy for security
+				}
+				else {
+					user = decoded.user._id;
+				}
+			});
+			// console.log(req.body.comment);
+			const newComment = await new Comment({
+				user:user,
+				comment:req.body.comment
+			}).save().then(result => result);
+			Post.updateOne({_id:req.params.postID},{$push:{comments:[newComment]}})
+			.then(()=> {return res.status(200).json({message:"Success"})})
+			.catch((err)=> {return res.status(400).json({message:"Unexpected Error"})});
+		}
+		catch(e) {
+			return res.status(400).json({message:"Couldn't reach DB",error:e});
+		}
 	}
-	catch(e) {
-		return res.status(400).json({message:"Couldn't reach DB",error:e});
-	}
-}
+];
 exports.addLike = async (req,res) => {
 	// Toggle Likes status
 	try {
