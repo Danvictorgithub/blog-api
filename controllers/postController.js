@@ -418,7 +418,20 @@ exports.getRandomPost = (req,res) => {
 	try {
 		let random = Math.floor(Math.random() * 1);
 		Post.aggregate().sample(1)
-		.then((result)=> {return res.status(200).json({message:"Success",post:result})})
+		.then((result)=> {
+			result.forEach( post => {
+				const $ = cheerio.load(post.content);
+				const postText = $.text().replace(/\n/g, '');
+				const words = postText.split(" ");
+				if (words.length < 25) {
+					post.content = words.splice(0,IndexPostLimit).join(" ");
+				}
+				else {
+					post.content = words.splice(0,IndexPostLimit).join(" ")+"...";
+				}
+			})
+			return res.status(200).json({message:"Success",post:result})
+		})
 		.catch((err) => {return res.status(400).json({message:"Unexpected Error"})});
 	}
 	catch(e) {
