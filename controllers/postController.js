@@ -51,7 +51,7 @@ async function uploadImage(imageReference,file) {
 }
 exports.getAllPost = async (req,res) => {
 	try {
-		const PostsList = await Post.find({}).populate("author","username").select(["headlineImage","author","title","content","date"]);
+		const PostsList = (await Post.find({}).populate("author","username").select(["headlineImage","author","title","content","date"])).reverse();
 		PostsList.forEach((post) => {
 			const $ = cheerio.load(post.content);
 			const postText = $.text().replace(/\n/g, '');
@@ -63,6 +63,20 @@ exports.getAllPost = async (req,res) => {
 				post.content = words.splice(0,IndexPostLimit).join(" ")+"...";
 			}
 		});
+		// const pagination = {
+		// 	page:req.body.page,
+		// 	limit:req.body.limit,
+		// 	result:PostsList.splice(req.body.page*req.body.limit,limit),
+		// 	pages: {
+		// 		current:req.body.page,
+		// 		numPages:[...Array(Math.ceil(PostsList.length/req.body.limit)).keys()],
+		// 		total:PostsList.length,
+		// 		show:req.body.show,
+		// 		numShow:numPages.splice(this.current	)
+		// 		first:numPages[0],
+		// 		last:numPages[numPages.length-1]
+		// 	}
+		// };
 		return res.status(200).json({message:"Success",posts:PostsList});
 	}
 	catch(e) {
