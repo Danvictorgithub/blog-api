@@ -150,11 +150,18 @@ exports.updatePost = [
 ];
 exports.deletePost = async (req,res) => {
 	try {
+		const user = jwt.verify(req.headers.authorization.split(" ")[1],process.env.SECRET_KEY).user;
+		console.log(user);
 		const PostObj = await Post.findById(req.params.postID);
 		if (PostObj === null) {
 			return res.status(400).json({message:"Post ID doesn't exist"});
 		}
-		Post.deleteOne({_id:req.params.postID}).then(()=> {return res.status(200).json({message:"Successfully deleted Post"})});
+		if (PostObj.author.toString() == user._id.toString() || user.isAdmin === true) {
+			return Post.deleteOne({_id:req.params.postID}).then(()=> {return res.status(200).json({message:"Successfully deleted Post"})});
+		}
+		else {
+			return res.status(400).json({message:"You are not authorized to delete this post"});
+		}
 	}
 	catch(e) {
 		return res.status(400).json({message:"Couldn't reach DB",error:e});

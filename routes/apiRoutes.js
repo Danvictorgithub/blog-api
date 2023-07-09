@@ -23,7 +23,7 @@ router.put("/posts/:postID",passport.authenticate('jwt',{session:false}),imageHa
 router.post("/posts/:postID/addComment",passport.authenticate('jwt',{session:false}),postController.addComment);
 router.put("/posts/:postID/addLike",passport.authenticate('jwt',{session:false}),postController.addLike);
 router.get("/posts/:postID/checkLike",passport.authenticate('jwt',{session:false}),postController.postCheckLike);
-router.delete("/posts/:postID",postController.deletePost);
+router.delete("/posts/:postID",passport.authenticate('jwt',{session:false}),postController.deletePost);
 router.post("/posts/add",passport.authenticate('jwt',{session:false}),imageHandler.single('headlineImage'),postController.addPost);
 router.post("/posts/imageHandler",imageHandler.single('img'),postController.postImageHandler);
 
