@@ -414,3 +414,14 @@ exports.getUserPost = async (req,res) => {
 		return res.status(400).json({message:"Couldn't reach DB",error:e});
 	}
 }
+exports.getRandomPost = (req,res) => {
+	try {
+		let random = Math.floor(Math.random() * 1);
+		Post.aggregate().sample(1)
+		.then((result)=> {return res.status(200).json({message:"Success",post:result})})
+		.catch((err) => {return res.status(400).json({message:"Unexpected Error"})});
+	}
+	catch(e) {
+        return res.status(400).json({message:"Couldn't reach DB",error:e});
+    }
+}
