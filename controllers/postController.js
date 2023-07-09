@@ -91,7 +91,13 @@ exports.updatePost = [
 				return res.status(400).json({message:"Post ID doesn't exist"});
 			}
 			// return res.status(200).json({message:"Success",post:PostObj});
-			next();
+			const user = jwt.verify(req.headers.authorization.split(" ")[1],process.env.SECRET_KEY).user;
+			if (PostObj.author.toString() == user._id.toString() || user.isAdmin === true) {
+				next();
+			}
+			else {
+				return res.status(401).json({message:"You are not authorized to update this post"});
+			}
 		}
 		catch(e) {
 			return res.status(400).json({message:"Couldn't reach DB",error:e});
@@ -113,13 +119,14 @@ exports.updatePost = [
 		.withMessage("The content is above maximum requirements"),
 	(req,res) => {
 		//checks if there is inputs anomaly else continue verify token
-		console.log(req.body.params);
+		// console.log(req.body.params);
 		const errors = validationResult(req);
 		if (!errors.isEmpty()) {
 			return res.status(400).json({message:"Invalid requirements",errors:errors.array()});
 		}
+		let hasFile = true;
 		if (req.file === undefined) {
-			return res.status(400).json({message:"No File Extenstion"});
+			hasFile = false;
 		}
 		const token = req.headers.authorization.split(" ")[1];
 		jwt.verify(token,process.env.SECRET_KEY,async function(err,decoded) {
@@ -129,19 +136,38 @@ exports.updatePost = [
 		else {
 			// confirms JWT and uses user id as "author"
 			// uploads image to firebase storage and assigns it as headlineImage URL
-			const imageReference = imageReferenceGenerator('BlogProject/images/',req.file);
-			const downloadURL = await uploadImage(imageReference,req.file);
-			try {
-				Post.updateOne(
-				{_id:req.params.postID},
-				{$set:{
-					title:req.body.title,
-					headlineImage:downloadURL,
-					content:req.body.content
-				}}).then(()=> {return res.status(200).json({message:"Success"});});
+			let imageReference;
+			let downloadURL;
+			if (hasFile) {
+				imageReference = imageReferenceGenerator('BlogProject/images/',req.file);
+				downloadURL = await uploadImage(imageReference,req.file);
+				try {
+					Post.updateOne(
+					{_id:req.params.postID},
+					{$set:{
+						title:req.body.title,
+						headlineImage:downloadURL,
+						content:req.body.content,
+						isEdited:true,
+					}}).then(()=> {return res.status(200).json({message:"Success",postId:req.params.postID});});
+				}
+				catch(e) {
+					return res.status(400).json({message:"Unexpected error"});
+				}
 			}
-			catch(e) {
-				return res.status(400).json({message:"Unexpected error"});
+			else {
+				try {
+					Post.updateOne(
+					{_id:req.params.postID},
+					{$set:{
+						title:req.body.title,
+						content:req.body.content,
+						isEdited:true,
+					}}).then(()=> {return res.status(200).json({message:"Success",postId:req.params.postID});});
+				}
+				catch(e) {
+					return res.status(400).json({message:"Unexpected error"});
+				}
 			}
 		}
 		});
@@ -151,7 +177,6 @@ exports.updatePost = [
 exports.deletePost = async (req,res) => {
 	try {
 		const user = jwt.verify(req.headers.authorization.split(" ")[1],process.env.SECRET_KEY).user;
-		console.log(user);
 		const PostObj = await Post.findById(req.params.postID);
 		if (PostObj === null) {
 			return res.status(400).json({message:"Post ID doesn't exist"});
